@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Chat App</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Connect to the Socket.IO server
+      const socket = io();
+
+      // Handle form submission
+      const form = document.getElementById('messageForm');
+      const messageInput = document.getElementById('messageInput');
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const message = messageInput.value;
+        socket.emit('message', message);
+        messageInput.value = '';
+      });
+
+      // Handle incoming messages
+      socket.on('message', (msg) => {
+        const messages = document.getElementById('messages');
+        const newMessage = document.createElement('li');
+        newMessage.textContent = msg;
+        messages.appendChild(newMessage);
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>APP</h1>
+  <form id="messageForm">
+    <input id="messageInput" type="text" placeholder="Type a message">
+    <button type="submit">Send</button>
+  </form>
+  <ul id="messages"></ul>
+</body>
+</html>
