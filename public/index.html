@@ -1,41 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Chat App</title>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Connect to the Socket.IO server
-      const socket = io();
-
-      // Handle form submission
-      const form = document.getElementById('messageForm');
-      const messageInput = document.getElementById('messageInput');
-      form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const message = messageInput.value;
-        socket.emit('message', message);
-        messageInput.value = '';
-      });
-
-      // Handle incoming messages
-      socket.on('message', (msg) => {
-        const messages = document.getElementById('messages');
-        const newMessage = document.createElement('li');
-        newMessage.textContent = msg;
-        messages.appendChild(newMessage);
-      });
-    });
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp-like Chat App</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+        .chat-header {
+            background-color: #075e54;
+            color: white;
+            padding: 10px 20px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .message {
+            max-width: 70%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            clear: both;
+        }
+        .received {
+            background-color: #f2f2f2;
+            float: left;
+        }
+        .sent {
+            background-color: #dcf8c6;
+            float: right;
+        }
+        #messageForm {
+            display: flex;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        #messageInput {
+            flex-grow: 1;
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+        button {
+            background-color: #075e54;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <h1>APP</h1>
-  <form id="messageForm">
-    <input id="messageInput" type="text" placeholder="Type a message">
-    <button type="submit">Send</button>
-  </form>
-  <ul id="messages"></ul>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>Chat App</h1>
+        </div>
+        <div id="messages" class="chat-messages"></div>
+        <form id="messageForm">
+            <input id="messageInput" type="text" placeholder="Type a message" autocomplete="off">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io();
+            const form = document.getElementById('messageForm');
+            const messageInput = document.getElementById('messageInput');
+            const messages = document.getElementById('messages');
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                if (messageInput.value.trim()) {
+                    socket.emit('message', messageInput.value);
+                    addMessage(messageInput.value, 'sent');
+                    messageInput.value = '';
+                }
+            });
+
+            socket.on('message', (msg) => {
+                addMessage(msg, 'received');
+            });
+
+            function addMessage(msg, type) {
+                const newMessage = document.createElement('div');
+                newMessage.textContent = msg;
+                newMessage.classList.add('message', type);
+                messages.appendChild(newMessage);
+                messages.scrollTop = messages.scrollHeight;
+            }
+        });
+    </script>
 </body>
 </html>
